@@ -1,5 +1,57 @@
 <p id="notice"><%= notice %></p>
 
+<div id="events">
+  <h2 id="month">
+    <div style="font-size: 1.5em;">
+      <%= link_to content_tag(:i, '', class: 'fa fa-angle-left'), date: @date.prev_month %>
+      <%= l @date, format: "%B %Y" %>
+      <%= link_to content_tag(:i, '', class: 'fa fa-angle-right'), date: @date.next_month %>
+    </div>
+  </h2>
+  <%= calendar @date do |date|%>
+    <%= date.day %>
+    <% if @events_by_date[date] %>
+      <% @events_by_date[date].each do |event| %>
+        <div class="box box-solid <%= calendar_event_style(event.stage) %> collapsed-box">
+          <div class="box-header">
+            <div class="box-title">
+              <small>
+                <small title="Horário do evento"><%= l event.reserve, format: '%H:%M' %></small> -
+                <small><%= link_to event.client.name, event %></small>
+              </small>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
 
-<%= link_to 'Calendar', calendar_events_path(@event) %> |
+<table>
+  <thead>
+    <tr>
+      <th>Description</th>
+      <th>Start date</th>
+      <th>End date</th>
+      <th>User</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @events.each do |event| %>
+      <tr>
+        <td><%= event.description %></td>
+        <td><%= event.start_date %></td>
+        <td><%= event.end_date %></td>
+        <td><%= event.user_id %></td>
+        <td><%= link_to 'Show', event %></td>
+        <td><%= link_to 'Edit', edit_event_path(event) %></td>
+        <td><%= link_to 'Destroy', event, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to 'Criar Evento', new_event_path(@event) %> |
 <%= link_to 'Back', events_path %>
