@@ -61,9 +61,11 @@ class EventsController < ApplicationController
     @date = params[:date] ? Date.parse(params[:date]) : Date.today
     @events_by_date = Event.where(user: current_user)
                             .order(:start_date)
-                            .group_by(&:start_date)
+                            .group_by_day(&:start_date)
+    puts @events_by_date
     #.includes(:guests)
-    @events = Event.all
+    @events = Event.where(user: current_user)
+                    .order(:start_date)
   end
 
   private

@@ -12,21 +12,21 @@
   <% end %>
 
   <div class="field">
-    <%= form.label :description %>
+    <%= form.label :description, "Descrição" %>
     <%= form.text_field :description %>
   </div>
 
   <div class="field">
-    <%= form.label :start_date %>
+    <%= form.label :start_date, "Início" %>
     <%= form.datetime_select :start_date %>
   </div>
 
   <div class="field">
-    <%= form.label :end_date %>
+    <%= form.label :end_date, "Fim" %>
     <%= form.datetime_select :end_date %>
   </div>
 
   <div class="actions">
-    <%= form.submit %>
+    <%= form.submit "Salvar Evento" %>
   </div>
 <% end %>
