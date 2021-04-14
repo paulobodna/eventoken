@@ -3,7 +3,7 @@ class EventsController < ApplicationController
 
   # GET /events or /events.json
   def index
-    @events = Event.all
+    @events = Event.where(user: current_user).order(:start_date)
   end
 
   # GET /events/1 or /events/1.json
@@ -24,12 +24,28 @@ class EventsController < ApplicationController
     @event = Event.new(event_params)
     @event.user = current_user
 
+    start_date = @event.start_date
+    end_date = @event.end_date
+
+    overlapping_events = Event.where(user: current_user)
+                          .where('? BETWEEN start_date AND end_date OR 
+                                  ? BETWEEN start_date AND end_date', 
+                                  start_date, end_date)
+
+    print overlapping_events.to_a
+
     respond_to do |format|
-      if @event.save
-        format.html { redirect_to @event, notice: "Evento criado." }
-        format.json { render :show, status: :created, location: @event }
+      if @event.end_date >= @event.start_date and overlapping_events.to_a.empty?
+        if @event.save
+          format.html { redirect_to @event, notice: "Evento criado." }
+          format.json { render :show, status: :created, location: @event }
+        else
+          format.html { render :new, status: :unprocessable_entity }
+          format.json { render json: @event.errors, status: :unprocessable_entity }
+        end
       else
-        format.html { render :new, status: :unprocessable_entity }
+        flash.now[:alert] = "Há outro evento no mesmo horário ou a data de fim é anterior à de início" 
+        format.html { render :new, status: :unprocessable_entity}
         format.json { render json: @event.errors, status: :unprocessable_entity }
       end
     end
@@ -37,12 +53,30 @@ class EventsController < ApplicationController
 
   # PATCH/PUT /events/1 or /events/1.json
   def update
+    event = Event.new(event_params)
+
+    start_date = @event.start_date
+    end_date = @event.end_date
+
+    overlapping_events = Event.where(user: current_user)
+                          .where('? BETWEEN start_date AND end_date OR 
+                                  ? BETWEEN start_date AND end_date', 
+                                  start_date, end_date)
+
+    print overlapping_events.to_a
+
     respond_to do |format|
-      if @event.update(event_params)
-        format.html { redirect_to @event, notice: "Evento atualizado." }
-        format.json { render :show, status: :ok, location: @event }
+      if event.end_date >= event.start_date and overlapping_events.to_a.empty? 
+        if @event.update(event_params)
+          format.html { redirect_to @event, notice: "Evento atualizado." }
+          format.json { render :show, status: :ok, location: @event }
+        else
+          format.html { render :edit, status: :unprocessable_entity }
+          format.json { render json: @event.errors, status: :unprocessable_entity }
+        end
       else
-        format.html { render :edit, status: :unprocessable_entity }
+        flash.now[:alert] = "Há outro evento no mesmo horário ou a data de fim é anterior à de início" 
+        format.html { render :edit, status: :unprocessable_entity}
         format.json { render json: @event.errors, status: :unprocessable_entity }
       end
     end
@@ -67,7 +101,7 @@ class EventsController < ApplicationController
     @events = Event.where(user: current_user)
                     .order(:start_date)
   end
-
+  
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_event
@@ -78,4 +112,5 @@ class EventsController < ApplicationController
     def event_params
       params.require(:event).permit(:description, :start_date, :end_date, :user_id)
     end
+
 end

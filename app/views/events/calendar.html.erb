@@ -3,7 +3,7 @@
 <div id="events">
   <h2 id="month">
     <div style="font-size: 1.5em;">
-      <%= link_to 'Todos', events_path, :class => "btn btn-outline-primary btn-sm" %>
+      <%= link_to 'Ver Todos', events_path, :class => "btn btn-outline-primary btn-sm" %>
       <%= link_to content_tag(:i, '<', class: 'fa fa-angle-left'), date: @date.prev_month %>
       <%= l @date, format: "%B %Y" %>
       <%= link_to content_tag(:i, '>', class: 'bi bi-chevron-right'), date: @date.next_month %>
